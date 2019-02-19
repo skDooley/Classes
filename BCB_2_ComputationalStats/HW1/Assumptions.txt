@@ -67,6 +67,11 @@ Use the mutant calling method to test the hypothesis that the number of referenc
 All individuals i ∈ {0, 1, 2}.
 Sites s ∈ {764, 765, . . . , 1199}.
 
+
+Assume all (individual) i's have the same same (ploidy) m.
+
+(Remember that in mutant calling Ho: G = m)
+
 2a Assumptions:
 
 We assume zisjb (ind.) ∼ Bernoulli(1 − eisj) and eisj is the probability of error of the sth nucleotide in the jth read of the ith individual.
