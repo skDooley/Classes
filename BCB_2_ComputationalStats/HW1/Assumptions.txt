@@ -70,7 +70,7 @@ Sites s ∈ {764, 765, . . . , 1199}.
 
 Assume all (individual) i's have the same same (ploidy) m.
 
-(Remember that in mutant calling Ho: G = m)
+(Remember that in mutant calling Ho: G = m).
 
 2a Assumptions:
 
