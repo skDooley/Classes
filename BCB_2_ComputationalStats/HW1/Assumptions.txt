@@ -1,0 +1,110 @@
+Assumptions.txt is a list of assumptions or other notes that are relevant for the homework questions.
+
+Overall Assumptions:
+
+1. We assume whole genome or targeted resequencing has been undertaken of a random sample
+of individuals from a well-defined population.
+
+2. We assume the genome of the organism has been previously
+sequenced, and that the reads have been successfully aligned to a good reference genome.
+
+3. We assume sequencing errors at sites within the reads are independent.
+
+4. We assume reads are independent conditional on the true source sequence
+
+5. We assume a sample of size n individuals.
+
+	A. We focus on a particular site in the genome where there is read coverage from the sequencing data. 
+	B. For the ith individual, the ploidy level is mi.
+	C. The (unknown) genotype Gi ∈ {0, 1, 2, . . . , mi} is the number of reference nucleotide.
+	D. The sequence data are Di = (Di1, Di2, . . . , Dili).
+	E. The quality scores are Qi = (Qi1, Qi2, . . . , Qili).
+		E1. li is the coverage (number of sequences aligned) to the chosen genomic position. 
+
+
+Throughout this problem, we will condition on the quality scores.
+
+
+Assumptions/Notes on Question 1:
+
+We focus on the ith individual and drop the subscript i in the notation.
+
+Likelihood of observing k reference alleles and l − k alleles not
+equal to the reference.
+
+Zj = 1 {Dj = br}, where br is the reference allele, indicate if the jth observed read matches the reference allele.
+
+The likelihood of the data Z1, Z2, . . . , Zl given the genotype g, when there are Σ l j=1 Zj = k reference alleles. WLOG, reorder the data so the first k reads match the reference allele.
+
+1a Assumptions:
+We assume a biallelic SNP.
+We will condition on the quality scores.
+
+1b Assumptions:
+We assume that at sites 962 and 964 assuming the reference base in both cases is nb = A
+
+1c Assumptions:
+We assume that reads do not depend on genotype.
+We assume that an allele is a SNP with a frequency-prior of 0.5 P(G=g)=0.5.
+	Assume prior population is 0.5, assume a 50/50 match.
+
+1d Assumptions:
+
+1e assumptions:
+
+
+
+
+Assumptions/Notes on Question 2:
+
+The full dataset contains reads from three individuals. 
+Test all sites for evidence of variation (a possible SNP).
+
+Assume/given only three individuals and thus very little information about ψ.
+
+Use the mutant calling method to test the hypothesis that the number of reference alleles in each of these three individuals at each of these sites is 2.
+
+All individuals i ∈ {0, 1, 2}.
+Sites s ∈ {764, 765, . . . , 1199}.
+
+2a Assumptions:
+
+We assume zisjb (ind.) ∼ Bernoulli(1 − eisj) and eisj is the probability of error of the sth nucleotide in the jth read of the ith individual.
+
+2b Assumptions:
+
+2c Assumptions:
+
+
+
+
+Assumptions/Notes on Question 3:
+
+Assumptions about the meaning of the NGS quality scores. 
+
+SNP genotyping notes assumes
+	1. The probability of error is independent of the true base.
+        2. Each possible error is equally likely when an error has occurred.
+        3. The quality score can be taken literally.
+
+Pr(R = b | B = b, Q = q) = 1 − 10^(−q/10)
+Pr(R = b'| B = b, Q = q) = 1/3(10^(−q/10))
+
+For all b ∈ {A, C, G, T} and b' neq b.
+
+Test the validity of these three assumptions.
+
+Using shorthand notation: pqbb' := Pr(R = b'| B = b, Q = q)
+
+Maximum likelihood estimation is analytically possible for all parts of this question, though of course you will have to use a computer to compute the value of the formula.
+
+3a Assumptions:
+
+Generally, we cannot observe the true base B that produced read nucleotide R, but for those sites where you are confident the individual is homozygous, we can be very confident that we know the true base. 
+	Notice for heterozygous positions, we cannot.
+
+3b Assumptions:
+
+3c Assumptions:
+
+
