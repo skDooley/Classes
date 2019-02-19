@@ -1,15 +1,18 @@
+# Homework problem 1b
 
+
+#Install dplyr if you don't already have it
 library(dplyr, quietly = T, warn.conflicts = F)
 
 # L(D=d_i | G=g)
 log.likelihood.d.g <- function(g, a, m, e, k){
   -k*log(m) +
-  sum(
-    log(ifelse(a == 1,
-    (m - g) * e/3 + g * (1 - e),
-    (m - g) * (1 - e) + g * e/3
-    )
-  ))
+  sum(log(ifelse(  a == 1, 
+                   g * (1 - e) + (m - g) * e/3, 
+                   (1 - e) * (m - g) + g * e + (2*e*(m-g))/3 
+                 )
+          )
+      )
 }
 
 # Returns a matrix individuals as rows and genotypes as columns
@@ -49,18 +52,6 @@ log.likelihood.psi <- function(psi, d, m){
   # Multiply by negative -1 since optim searches for minima
   -1 * sum(sumA)
 }
-
-#Read the data
-d = read.table("data/Pos964_data.txt",header=T)
-
-#Compute Psi
-d$e <- 10^(-d$q/10) # compute error probability once
-require(ggplot2, quietly = T, warn.conflicts = F)
-psi <- seq(from = 1e-6, to = 1-1e-6, length.out = 1000)
-ll <- do.call(rbind, lapply(psi, log.likelihood.psi, d = d, m = 2))
-ll.plot <- data.frame(psi = psi, ll = ll)
-ggplot(ll.plot, aes(x = psi, y = -ll)) + geom_line() +labs(y = "log likelihood", x = expression(psi))
-  
   
 #Estimate Psi
 estimate.psi <- function(d)
@@ -68,8 +59,26 @@ estimate.psi <- function(d)
   optim(0.5, log.likelihood.psi, d=d, m=2, method='Brent', lower=0, upper=1)$par
 }
 
+#Read the data
+d962 = read.table("data/Pos962_data.txt", header=T)
+d964 = read.table("data/Pos964_data.txt", header=T)
+
+#Compute Psi
+d962$e <- 10^(-d962$q/10) # compute error probability once
+d964$e <- 10^(-d964$q/10) # compute error probability once
+
 #Get MLE
-mle <- estimate.psi(d)
+mle_962 <- estimate.psi(d962)
+mle_964 <- estimate.psi(d964)
+mle_962
+mle_964
+
+#Graphicing log likelihood for kicks
+require(ggplot2, quietly = T, warn.conflicts = F)
+psi <- seq(from = 1e-6, to = 1-1e-6, length.out = 1000)
+ll <- do.call(rbind, lapply(psi, log.likelihood.psi, d = d964, m = 2))
+ll.plot <- data.frame(psi = psi, ll = ll)
+ggplot(ll.plot, aes(x = psi, y = -ll)) + geom_line() +labs(y = "log likelihood", x = expression(psi))
 
 
 
