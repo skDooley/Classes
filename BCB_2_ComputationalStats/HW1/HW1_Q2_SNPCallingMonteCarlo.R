@@ -1,58 +1,24 @@
-# Install poisson-binomial library if not already installed
-#install.packages('poisbinom')
+#Q2a.
 
-library(poisbinom)
+#install.packages('poibin') #library(poisbinom)
+library(poibin)
+I0_Pos962 = read.table("data/Pos962_data.txt", header=T)
+successProbs = (1.0-10^(-I0_Pos962$q/10))
+Td = sum(I0_Pos962$a)
 
+monteCarloSampling = function(Td,prob_success,nsims=10){
+  sum=0
+  for (i in 1:nsims){
+    trials = rpoibin(1,prob_success)
+    if (trials <= Td){ sum=sum+1 }
+  }
+  sum/nsims
+}
 
-I_0_Pos962 = read.table("data/Pos962_data.txt", header=T)
-I_0_Pos962$e = (1-)
+print(monteCarloSampling(Td,successProbs))
 
-nsims = 10
-num_observed_ref_alleles = sum(I_0_Pos962$a)
-coverage = length(I_0_Pos962$a)
-calls = I_0_Pos962$a
-
-reps = replicate(nsims, rpoisbinom(num_observed_ref_alleles,calls))
-
-help(rpoisbinom)
-
-pp = runif(500)
-pp
-rpoisbinom(50,calls)
-reps
-colSums(reps)
-pvalue=sum(colSums(reps))/nsims
-
-
-repTable/sum(repTable)
-
-
-tmp <- tmp/sum(tmp)
-
-
-pvalue = colSums(reps) / nsims
-
-
-
-pvalue
-
-colSums(reps)       
-reps
-tmp <- table(colSums(reps))
-tmp <- tmp/sum(tmp)
-p <- as.numeric(tmp[as.character(qscores)])
-p
-p[is.na(p)] <- 0
-p
-
-
-
-
-
-
-
-
-dpbinom <- function(x, prob, log = FALSE, method = c("MC", "PA", "NA", "BA"), nsim = 1e4) {
+#Q2b.
+dpbinom = function(x, prob, log = FALSE, method = c("MC", "PA", "NA", "BA"), nsim = 1e4) {
   stopifnot(all(prob >= 0 & prob <= 1))
   method <- match.arg(method)
   
@@ -68,7 +34,7 @@ dpbinom <- function(x, prob, log = FALSE, method = c("MC", "PA", "NA", "BA"), ns
   } else {
     
     # monte carlo
-    tmp <- table(colSums(replicate(nsim, rpoisbinom(length(x)*.1,x))))
+    tmp <- table(colSums(replicate(nsim, rbinom(length(prob), 1, prob))))
     tmp <- tmp/sum(tmp)
     p <- as.numeric(tmp[as.character(x)])
     p[is.na(p)] <- 0
@@ -78,6 +44,13 @@ dpbinom <- function(x, prob, log = FALSE, method = c("MC", "PA", "NA", "BA"), ns
   }
 }
 
-d962$e <- 10^(-d962$q/10)
+for (case in c("NA","BA","PA","MC")){
+  print(case)
+  print(dpbinom(I0_Pos962$q,successProbs,method=case,log = FALSE))
+}
 
-dpbinom(d962$e,1,method='PA')
+
+#How long will this take?
+#pos  *indiduals * seconds to simulate / seconds / minutes = #hours
+(1199-764)*3*12/60/60
+
