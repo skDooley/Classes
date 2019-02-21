@@ -8,13 +8,13 @@ dpbinom = function(x, prob, log = FALSE, method = c("MC", "PA", "NA", "BA"), nsi
   
   if (method == "PA") {
     # poisson
-    dpois(x, sum(prob), log)
+    ppois(x, sum(prob), log)
   } else if (method == "NA") {
     # normal
-    dnorm(x, sum(prob), sqrt(sum(prob*(1-prob))), log)
+    pnorm(x, sum(prob), sqrt(sum(prob*(1-prob))), log)
   } else if (method == "BA") {
     # binomial
-    dbinom(x, length(prob), mean(prob), log)
+    pbinom(x, length(prob), mean(prob), log)
   } else {
     
     # monte carlo
