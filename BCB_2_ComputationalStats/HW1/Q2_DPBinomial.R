@@ -1,10 +1,6 @@
 #Q2a.
 
-#install.packages('poibin') #library(poisbinom)
 library(poibin)
-I0_Pos962 = read.table("data/Pos962_data.txt", header=T)
-successProbs = (1.0-10^(-I0_Pos962$q/10))
-Td = sum(I0_Pos962$a)
 
 monteCarloSampling = function(Td,prob_success,nsims=10){
   sum=0
@@ -15,10 +11,11 @@ monteCarloSampling = function(Td,prob_success,nsims=10){
   sum/nsims
 }
 
-print(monteCarloSampling(Td,successProbs))
+#print(monteCarloSampling(Td,successProbs))
 
 #Q2b.
 dpbinom = function(x, prob, log = FALSE, method = c("MC", "PA", "NA", "BA"), nsim = 1e4) {
+  prob = 1-prob
   stopifnot(all(prob >= 0 & prob <= 1))
   method <- match.arg(method)
   
@@ -44,13 +41,11 @@ dpbinom = function(x, prob, log = FALSE, method = c("MC", "PA", "NA", "BA"), nsi
   }
 }
 
-for (case in c("NA","BA","PA","MC")){
-  print(case)
-  print(dpbinom(I0_Pos962$q,successProbs,method=case,log = FALSE))
-}
-
-
+#for (case in c("NA","BA","PA","MC")){
+#  print(case)
+#  print(dpbinom(I0_Pos962$q,successProbs,method=case,log = FALSE))
+#}
 #How long will this take?
 #pos  *indiduals * seconds to simulate / seconds / minutes = #hours
-(1199-764)*3*12/60/60
-
+#(1199-764)*3*12/60/60
+#install.packages('poibin') #library(poisbinom)
