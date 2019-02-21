@@ -3,6 +3,8 @@
 
 #Q2b.
 dpbinom = function(x, prob, log = FALSE, method = c("MC", "PA", "NA", "BA"), nsim = 1e4) {
+  prob = 10^(-(prob-33)/10)
+  #print(prob)
   stopifnot(all(prob >= 0 & prob <= 1))
   method <- match.arg(method)
   
