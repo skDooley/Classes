@@ -2,6 +2,8 @@ Assumptions.txt is a list of assumptions or other notes that are relevant for th
 
 Overall Assumptions:
 
+Used/edited code from class notes: snpgen_callingh.pdf pages 8-11.
+
 1. We assume whole genome or targeted resequencing has been undertaken of a random sample
 of individuals from a well-defined population.
 
@@ -56,6 +58,8 @@ We assume that an allele is a SNP with a frequency-prior of 0.5 P(G=g)=0.5.
 
 
 Assumptions/Notes on Question 2:
+
+Used/edited code from StackExchange (Tim and Neil G): https://stats.stackexchange.com/questions/177199/success-of-bernoulli-trials-with-different-probabilities/.
 
 The full dataset contains reads from three individuals. 
 Test all sites for evidence of variation (a possible SNP).
