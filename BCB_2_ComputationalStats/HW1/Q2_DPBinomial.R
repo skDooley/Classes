@@ -15,7 +15,6 @@ monteCarloSampling = function(Td,prob_success,nsims=10){
 
 #Q2b.
 dpbinom = function(x, prob, log = FALSE, method = c("MC", "PA", "NA", "BA"), nsim = 1e4) {
-  prob = 1-prob
   stopifnot(all(prob >= 0 & prob <= 1))
   method <- match.arg(method)
   
