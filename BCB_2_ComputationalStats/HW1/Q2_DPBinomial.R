@@ -1,17 +1,5 @@
 #Q2a.
 
-library(poibin)
-
-monteCarloSampling = function(Td,prob_success,nsims=10){
-  sum=0
-  for (i in 1:nsims){
-    trials = rpoibin(1,prob_success)
-    if (trials <= Td){ sum=sum+1 }
-  }
-  sum/nsims
-}
-
-#print(monteCarloSampling(Td,successProbs))
 
 #Q2b.
 dpbinom = function(x, prob, log = FALSE, method = c("MC", "PA", "NA", "BA"), nsim = 1e4) {
@@ -40,6 +28,10 @@ dpbinom = function(x, prob, log = FALSE, method = c("MC", "PA", "NA", "BA"), nsi
   }
 }
 
+
+
+
+####################### Development Artifacts below here #######################
 #for (case in c("NA","BA","PA","MC")){
 #  print(case)
 #  print(dpbinom(I0_Pos962$q,successProbs,method=case,log = FALSE))
@@ -48,3 +40,15 @@ dpbinom = function(x, prob, log = FALSE, method = c("MC", "PA", "NA", "BA"), nsi
 #pos  *indiduals * seconds to simulate / seconds / minutes = #hours
 #(1199-764)*3*12/60/60
 #install.packages('poibin') #library(poisbinom)
+
+#library(poibin)
+
+#print(monteCarloSampling(Td,successProbs))
+# monteCarloSampling = function(Td,prob_success,nsims=10){
+#   sum=0
+#   for (i in 1:nsims){
+#     trials = rpoibin(1,prob_success)
+#     if (trials <= Td){ sum=sum+1 }
+#   }
+#   sum/nsims
+# }
