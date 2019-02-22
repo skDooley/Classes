@@ -65,8 +65,8 @@ rfuncts = STAP(rtext,"")
 from scipy.stats import bernoulli
 rbern=bernoulli.rvs 
 
-nsims = 10000
-output = open("Question2_%i_%i.txt" % (start,stop),"w")
+nsims = 1000
+output = open("output/Question2_%i_%i.txt" % (start,stop),"w")
 output.write("Individual Pos MC-PVal PA-Pval NA-PVal BA-PVal MCBN-PVal\n")
 data=None
 failed, totalRuns = 0, 0

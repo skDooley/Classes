@@ -1,5 +1,4 @@
-# Homework problem 1b
-
+# Homework problem 1
 
 #Install dplyr if you don't already have it
 library(dplyr, quietly = T, warn.conflicts = F)
@@ -28,12 +27,20 @@ log.likelihood.MAP <- function(g, a, m, e, k){
 }
 
 # Returns a matrix individuals as rows and genotypes as columns
-log.likelihood.G <- function(d, m=2){
-  do.call(rbind,
-    lapply(split(d, factor(d$i)), function(d_i){
-      sapply(0:m, log.likelihood.d.g, a=d_i$a, m=m, e=d_i$e, k=nrow(d_i)) 
-    })
-  )
+log.likelihood.G <- function(d, m=2, type='g'){
+  if (type == 'g'){
+    do.call(rbind,
+            lapply(split(d, factor(d$i)), function(d_i){
+              sapply(0:m, log.likelihood.d.g, a=d_i$a, m=m, e=d_i$e, k=nrow(d_i)) 
+            })
+    )
+  } else {
+    do.call(rbind,
+            lapply(split(d, factor(d$i)), function(d_i){
+              sapply(0:m, log.likelihood.MAP, a=d_i$a, m=m, e=d_i$e, k=nrow(d_i)) 
+            })
+    )
+  }
 }
 
 # A helper function for adding logs
@@ -47,8 +54,7 @@ logsum <- function(x){
 }
 
 # A wrapper for computing column sums
-logcolsums <- function(m)
-{
+logcolsums <- function(m){
   apply(m, 2, logsum)
 }
 
@@ -74,11 +80,19 @@ estimate.psi <- function(d)
   optim(0.5, log.likelihood.psi, d=d, m=2, method='Brent', lower=0, upper=1)$par
 }
 
+#Helper function to process the data between python and R
 prepData = function(fileName){
   data = read.table(fileName, header=T)
   data$e = 10^(-(data$q-33)/10.0)
   data
 }
+
+log.likelihood.gmap = function(fileName){
+  data = prepData(fileName)
+  log.likelihood.G(data,type="MAP")
+}
+
+log.likelihood.gmap("data/Pos964_data.txt")
 
 # #Read the data
 # d962 
