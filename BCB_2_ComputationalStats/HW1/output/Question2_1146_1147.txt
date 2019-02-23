@@ -1,0 +1,2 @@
+Individual Pos MC-PVal PA-Pval NA-PVal BA-PVal MCBN-PVal
+2 1146 0.0040 0.4773 0.0010 0.0276 0.0018
