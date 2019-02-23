@@ -71,12 +71,12 @@ output.write("Individual Pos MC-PVal PA-Pval NA-PVal BA-PVal MCBN-PVal\n")
 data=None
 failed, totalRuns = 0, 0
 for pos in range(start,stop):
-    print(pos)
+    #print(pos)
     data = ProcessPosition(pos)
     for individual in data:
-        print(individual,pos,data.read_counter[individual],)
+        #print(individual,pos,data.read_counter[individual],)
         if data.total_reads[individual] == 0: #if there are no reads for that individual at that position
-            output.write("%i %i %0.4f %0.4f %0.4f %0.4f %0.4f\n" % (individual,pos,0.0,0.0,0.0,0.0,0.0))
+            #output.write("%i %i %0.4f %0.4f %0.4f %0.4f %0.4f\n" % (individual,pos,0.0,0.0,0.0,0.0,0.0))
             continue
         successfulTrials = 0
         refAllele = data.majorAllele
