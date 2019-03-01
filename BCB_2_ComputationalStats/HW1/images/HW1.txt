@@ -1,0 +1,942 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "<h1><a id='outline'>Project Outline</a></h1>\n",
+    "\n",
+    "* [Data Pre-Processing](#dpp)\n",
+    "  *  [Required Libraries](#libs)\n",
+    "  *  [Separate Data](#sep)\n",
+    "  *  [General Data Overview](#gdo)\n",
+    "* [Question 1](#rq1d)\n",
+    "  *  [Read in Q1 Data](#rq1d)\n",
+    "  *  [Quality Score Distribution](#sep)\n",
+    "  *  [Separate Data](#sep)\n",
+    "* [Question 1a](#q1a)\n",
+    "* [Question 1b code](#q1b-code)\n",
+    "* [Question 1b answer](#q1b)\n",
+    "* [Question 1c](#q1c)\n",
+    "* [Question 1d](#q1d)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "<h2><a id=\"dpp\">Data prep and cursory analysis</a></h2>"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "<h4><a id=\"libs\">Python Libraries and Jupyter Magic</a></h4>"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "%matplotlib inline\n",
+    "%load_ext rpy2.ipython\n",
+    "from pandas import Series\n",
+    "from collections import Counter\n",
+    "import rpy2.rinterface\n",
+    "from rpy2.robjects.packages import STAP\n",
+    "from rpy2.robjects.vectors import FloatVector as rArray"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "#### Separate Data\n",
+    "<a id=\"sep\"></a>\n",
+    "##### Divide the data by individual and position because github wont allow large files and this will allow us to only load small amounts of data into memory at a time"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "%%bash\n",
+    "cd data/\n",
+    "for individual in {0..2}; do \n",
+    "    for pos in {764..1199}; do\n",
+    "        awk -v individual=\"$individual\" -v pos=\"$pos\" '($1==individual && $3==pos && $4!=\"NA\") {print $0}' genotyping.txt > Individual$individual\\_position$pos.txt\n",
+    "    done"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "#### General Data Overview \n",
+    "<a id=\"gdo\"></a>\n",
+    "<ol style=\"display: inline; padding: 0;margin-top: -10px;\"> <p style=\"display: inline; padding: 0;margin-top: -10px;\"><u>Genotyping.txt Column Designations:</u></p>\n",
+    "    <li>Id of individual</li>\n",
+    "    <li>Id of read</li>\n",
+    "    <li>Reference position</li>\n",
+    "    <li>Read base call</li>\n",
+    "    <li>Read quality score</li>\n",
+    "</ol>"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "0 0 962 A p\n",
+      "0 1 962 A h\n",
+      "0 2 962 A i\n",
+      "0 3 962 A l\n",
+      "0 4 962 G X\n",
+      "0 5 962 G p\n",
+      "0 6 962 G p\n",
+      "0 7 962 A p\n",
+      "0 8 962 A p\n",
+      "0 9 962 G r\n"
+     ]
+    }
+   ],
+   "source": [
+    "%%bash \n",
+    "head data/Individual0_position962.txt"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "[Project Outline](#outline)\n",
+    "#### Question 1\n",
+    "##### Read in Q1 Data\n",
+    "<a id=\"rq1d\"></a>"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "class SeqRead:\n",
+    "    def __init__(self,data):\n",
+    "        rec = data.strip().split()\n",
+    "        self.errorProb = 10.0**(-(ord(rec[4])-33)/10.0)\n",
+    "        self.q = ord(rec[4])\n",
+    "        self.call = rec[3]\n",
+    "        \n",
+    "pos962,pos964 = [],[]\n",
+    "for line in open(\"data/Individual0_position962.txt\"): pos962.append(SeqRead(line))\n",
+    "for line in open(\"data/Individual0_position964.txt\"): pos964.append(SeqRead(line))\n",
+    "positions = [pos962,pos964]\n",
+    "data, all_qs, all_errors, all_calls = [],[],[],[]\n",
+    "for pos in positions:\n",
+    "    calls, errorProbs, qscores = [],[],[]\n",
+    "    for read in pos:\n",
+    "        qscores.append(read.q)\n",
+    "        errorProbs.append(read.errorProb)\n",
+    "        calls.append(int(read.call=='A'))\n",
+    "    all_calls.append(calls)   \n",
+    "    all_qs.append(qscores) \n",
+    "    all_errors.append(errorProbs)\n",
+    "    qscores = Series(qscores)\n",
+    "    data.append(qscores)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "##### Describe and plot the distribution of Q scores to see data quality\n",
+    "<a id=\"q1qc\"></a>"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 16,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Individual 0 Position 962 Quality score Distribution\n",
+      " count    8883.000000\n",
+      "mean      104.602837\n",
+      "std        13.239879\n",
+      "min        36.000000\n",
+      "25%       104.000000\n",
+      "50%       111.000000\n",
+      "75%       113.000000\n",
+      "max       114.000000\n",
+      "dtype: float64\n"
+     ]
+    },
+    {
+     "data": {
+      "image/png": "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\n",
+      "text/plain": [
+       "<Figure size 432x288 with 1 Axes>"
+      ]
+     },
+     "metadata": {
+      "needs_background": "light"
+     },
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "print(\"Individual 0 Position 962 Quality score Distribution\\n\",data[0].describe())\n",
+    "data[0].hist().plot();"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 17,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Individual 0 Position 964 Quality score Distribution\n",
+      " count    8886.000000\n",
+      "mean      108.660027\n",
+      "std         9.702624\n",
+      "min        36.000000\n",
+      "25%       110.000000\n",
+      "50%       113.000000\n",
+      "75%       113.000000\n",
+      "max       114.000000\n",
+      "dtype: float64\n"
+     ]
+    },
+    {
+     "data": {
+      "image/png": "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\n",
+      "text/plain": [
+       "<Figure size 432x288 with 1 Axes>"
+      ]
+     },
+     "metadata": {
+      "needs_background": "light"
+     },
+     "output_type": "display_data"
+    }
+   ],
+   "source": [
+    "print(\"Individual 0 Position 964 Quality score Distribution\\n\",data[1].describe())\n",
+    "data[1].hist().plot();"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "[Project Outline](#outline)\n",
+    "<h5><a id='q1a'>Question 1a.</a></h5>\n",
+    "\n",
+    "![](images/Q1A.png)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "$L(g|Z_1,Z_2,...,Z_l)$ def $\\stackrel{def}{=}$ $Pr(Z_1=z_1,Z_2=z_2,...,Z_l=z_l|G=g)$ \n",
+    "\n",
+    "$\\stackrel{CP}{=}$ $\\frac{Pr(Z_1=z_1 \\cap Z_2=z_2 \\cap...\\cap Z_l=z_l\\cap G=g)}{Pr(G=g)}$\n",
+    "\n",
+    "$\\stackrel{MR}{=}$ $\\frac{1}{Pr(G=g)} * Pr(Z_1=z_1) * Pr(Z_2=z_2|Z_1=z_1) * Pr(Z_3=z_3|Z_1=z_1 \\cap Z_2=z_2) * ... * Pr(Z_l=z_l | Z_1=z_1 \\cap ... \\cap Z_{l-1}=z_{l-1}) * Pr(G=g|Z_1=z_1 \\cap ... \\cap Z_l=z_l)$ \n",
+    "\n",
+    "Since G is independent of Z_n,\n",
+    "\n",
+    "$Pr(G = g | Z_1=z_1  \\cap ... \\cap  Z_l=z_l)$ = Pr(G = g)\n",
+    "\n",
+    "and Pr(G = g) cancels.\n",
+    "\n",
+    "$\\stackrel{Independance\\: of \\:reads}{=}$ $Pr(Z_1=z_1)Pr(Z_2=z_2)...Pr(Z_l=z_l)$\n",
+    "\n",
+    "$\\stackrel{WLOG}{=}$ ${\\displaystyle \\prod_{j=1}^{k} Pr(Z_j=1)}$ $\\cdot$ ${\\displaystyle \\prod_{j=k+1}^{l} Pr(Z_j=0)}$\n",
+    "\n",
+    "where $Z_j= \\mathbb{1}\\{D_j=b_r\\}$ is an indicator function matching the read $b_r$ to the reference allele $D_j$. A read either matches the reference $Z_j = 1$ or it doesn't $Z_j = 0)$\n",
+    "\n",
+    "##### From the class lecture notes we know that Li makes the assumption that the probability of an error in observing a particular call in a read at a specific site is equal to $10^{-(ord(q)-33)/10}$ where q is the quality score of the read from the sequencer, which is recorded in the fastq file. So, the probability of an error $10^{-(ord(q)-33)/10}$ = $e_{ijs}$\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 19,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "/mnt/research/germs/shane/Classes/BCB_2_ComputationalStats/HW1\n",
+      "Q1A.png\n"
+     ]
+    }
+   ],
+   "source": [
+    "%%bash\n",
+    "pwd\n",
+    "ls images"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "&nbsp; <p><b>b. </b>Use the data from three diploids at https://dorman.stat.iastate.edu/files/genotyping.txt to compute the likelihood of the data in individual 0 at sites 962 and 964 assuming the reference base in both cases is $n_{b}$ = A. What are your maximum likelihood estimates $\\hat{G}_{MLE,962}$ and $\\hat{G}_{MLE,964}$ of the genotypes? (These data are unforgivingly huge, so you may want to do selective reading of the data in some smart way.)</p>"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "with open('Q1_MLE.R', 'r') as fh: rtext = fh.read()\n",
+    "rfuncts = STAP(rtext,\"\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "%%R\n",
+    "log.likelihood.d.g <- function(genotype, calls, ploidy, errorProbs, coverage){\n",
+    "  -coverage*log(ploidy) +\n",
+    "  sum(\n",
+    "      log(\n",
+    "          ifelse(  calls == 1, \n",
+    "                   genotype * (1 - errorProbs) + (ploidy - genotype) * errorProbs/3, \n",
+    "                   (1 - errorProbs) * (ploidy - genotype) + genotype * errorProbs + (2*errorProbs*(ploidy-genotype))/3 \n",
+    "                 )\n",
+    "          )\n",
+    "      )\n",
+    "}"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Finding MLE:\n",
+      "-6152.268491224305 1\n",
+      "Finding MLE:\n",
+      "-6160.344705015218 1\n"
+     ]
+    }
+   ],
+   "source": [
+    "for pos in range(0,2):\n",
+    "    print(\"Finding MLE:\")\n",
+    "    calls = all_calls[pos]\n",
+    "    errorProbs = all_errors[pos]\n",
+    "    maxScore = None\n",
+    "    G = None\n",
+    "    for g in range(0,3):\n",
+    "        L = rfuncts.log_likelihood_d_g(g,rArray(calls),2,rArray(errorProbs),len(calls))[0]\n",
+    "        if not maxScore or maxScore < L: \n",
+    "            maxScore=L\n",
+    "            G=g\n",
+    "    print (maxScore,G)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "$\\hat{G}_{MLE,962}$ = 1\n",
+    "\n",
+    "$\\hat{G}_{MLE,964}$ = 1"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "&nbsp; <p><b>c. </b></p>"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "%%R\n",
+    "log.likelihood.MAP <- function(g, a, m, e, k){\n",
+    "  -k*log(m) + log(0.5) +\n",
+    "    sum(\n",
+    "        log(\n",
+    "            ifelse(  a == 1, \n",
+    "                     g * (1 - e) + (m - g) * e/3, \n",
+    "                     (1 - e) * (m - g) + g * e + (2*e*(m-g))/3\n",
+    "                  )\n",
+    "        )\n",
+    "    )\n",
+    "}"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Finding MAP:\n",
+      "-6152.961638404865 1\n",
+      "Finding MAP:\n",
+      "-6161.037852195778 1\n"
+     ]
+    }
+   ],
+   "source": [
+    "for pos in range(0,2):\n",
+    "    print(\"Finding MAP:\")\n",
+    "    calls = all_calls[pos]\n",
+    "    errorProbs = all_errors[pos]\n",
+    "    maxScore = None\n",
+    "    G = None\n",
+    "    for g in range(0,3):\n",
+    "        L = rfuncts.log_likelihood_MAP(g,rArray(calls),2,rArray(errorProbs),len(calls))[0]\n",
+    "        if not maxScore or maxScore < L: \n",
+    "            maxScore=L\n",
+    "            G=g\n",
+    "    print (maxScore,G)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "<b>d.</b>"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 55,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "-83316.69248101514\n",
+      "-67592.65415952701\n",
+      "1.2326293961526864\n",
+      "lambda: -0.4182992163208919\n",
+      "0.0\n",
+      "\n",
+      "\n",
+      "-89699.69855779826\n",
+      "-69222.3349671043\n",
+      "1.2958201800101827\n",
+      "lambda: -0.5182876766225387\n",
+      "0.0\n"
+     ]
+    }
+   ],
+   "source": [
+    "from scipy.stats import chi2\n",
+    "\n",
+    "\n",
+    "Ls = rfuncts.log_likelihood_gmap(\"data/Pos962_data.txt\")\n",
+    "L_Ho = float(Ls[2])\n",
+    "print (L_Ho)\n",
+    "L_Ha = min(float(Ls[0]),float(Ls[1]))\n",
+    "print (L_Ha)\n",
+    "Lambda = L_Ho/L_Ha\n",
+    "print(Lambda)\n",
+    "lambd = -2*log(Lambda)\n",
+    "print(\"lambda:\",lambd)\n",
+    "print(chi2.pdf(lambd,1))\n",
+    "print(\"\\n\")\n",
+    "# Ls = rfuncts.log_likelihood_gmap(\"data/Pos964_data.txt\")\n",
+    "# print(Ls)\n",
+    "# L_Ho = float(Ls[2])\n",
+    "# print (L_Ho)\n",
+    "# L_Ha = min(float(Ls[0]),float(Ls[1]))\n",
+    "# print (L_Ha)\n",
+    "\n",
+    "# Lambda = L_Ho/L_Ha\n",
+    "# print(Lambda)\n",
+    "# pi = -2*log(Lambda)\n",
+    "# print (chi2.ppf(pi,1))\n",
+    "\n",
+    "Ls = rfuncts.log_likelihood_gmap(\"data/Pos964_data.txt\")\n",
+    "L_Ho = float(Ls[2])\n",
+    "print (L_Ho)\n",
+    "L_Ha = min(float(Ls[0]),float(Ls[1]))\n",
+    "print (L_Ha)\n",
+    "\n",
+    "Lambda = L_Ho/L_Ha\n",
+    "print(Lambda)\n",
+    "lambd = -2*log(Lambda)\n",
+    "print(\"lambda:\",lambd)\n",
+    "print (chi2.pdf(lambd,1))\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 51,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "-43.44617628993274\n",
+      "-76373.98592521084\n",
+      "0.000568860925138533\n",
+      "lambda: 14.94374914701002\n",
+      "5.870652644378423e-05\n"
+     ]
+    }
+   ],
+   "source": [
+    "Ls = rfuncts.log_likelihood_gmap(\"data/I0_Pos768_data.txt\")\n",
+    "L_Ho = float(Ls[2])\n",
+    "print (L_Ho)\n",
+    "L_Ha = min(float(Ls[0]),float(Ls[1]))\n",
+    "print (L_Ha)\n",
+    "\n",
+    "Lambda = L_Ho/L_Ha\n",
+    "print(Lambda)\n",
+    "lambd = -2*log(Lambda)\n",
+    "print(\"lambda:\",lambd)\n",
+    "print (chi2.pdf(lambd,1))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 56,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "i\tj\tq\ta\n",
+      "0\t1\t66\t1\n",
+      "0\t2\t65\t1\n",
+      "0\t3\t66\t1\n",
+      "0\t4\t65\t1\n",
+      "0\t5\t66\t1\n",
+      "0\t6\t65\t1\n",
+      "0\t7\t66\t1\n",
+      "0\t8\t66\t1\n",
+      "0\t9\t65\t1\n"
+     ]
+    }
+   ],
+   "source": [
+    "%%bash\n",
+    "head data/I0_Pos768_data.txt\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 49,
+   "metadata": {},
+   "outputs": [
+    {
+     "data": {
+      "text/plain": [
+       "{0: {'A': 2, 'C': 2, 'G': 8869, 'T': 2},\n",
+       " 1: {'A': 6, 'C': 2, 'G': 11858, 'T': 5},\n",
+       " 2: {'A': 0, 'C': 0, 'G': 0, 'T': 0}}"
+      ]
+     },
+     "execution_count": 49,
+     "metadata": {},
+     "output_type": "execute_result"
+    }
+   ],
+   "source": [
+    "data.read_counter"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 30,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "0.49999968218679913\n",
+      "0.49999968218679913\n"
+     ]
+    }
+   ],
+   "source": [
+    "for fileName in [\"data/Pos962_data.txt\",\"data/Pos964_data.txt\"]:\n",
+    "    psi = rfuncts.estimate_psi(fileName)[0]\n",
+    "    "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "count = 0\n",
+    "for fhName in [\"data/Pos962_data.txt\",\"data/Pos964_data.txt\"]:\n",
+    "    fh = open(fhName,\"w\")\n",
+    "    fh.write(\"i\\tj\\tq\\ta\\n\")\n",
+    "    nRead = 0\n",
+    "    for read in positions[count]: \n",
+    "        nRead +=1\n",
+    "        fh.write(\"0\\t%i\\t%i\\t%i\\n\" % (nRead,read.q,int(read.call == 'A')))\n",
+    "    fh.close()\n",
+    "    count+=1\n",
+    "    "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "%%bash\n",
+    "head data/Pos962_data.txt\n",
+    "echo\n",
+    "head data/Pos964_data.txt"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# Sort by call\n",
+    "positions[0].sort(key=lambda x:x.call)\n",
+    "positions[1].sort(key=lambda x:x.call)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "for pos in positions:\n",
+    "    counter = {}\n",
+    "    for read in pos:\n",
+    "        try:counter[read.call] +=1\n",
+    "        except:counter[read.call] = 1\n",
+    "    print counter"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "<h4>Question 2</h4>\n",
+    "&nbsp; <p><b>a.</b>Produce a space-separated text file with the individual in set{0,1,2}, the site in set{764,765,...,1199}, and the p-value for rejecting H0. For computing the p-value, use Monte Carlo sampling to estimate</p>"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "#### Python Helper classes and functions"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from collections import Counter     \n",
+    "class Locus:\n",
+    "    def __init__(self,pos):\n",
+    "        self.majorAllele = None\n",
+    "        self.majorAlleleCount = -1\n",
+    "        self.qscores = {0:[],1:[],2:[]}\n",
+    "        self.reads = {0:[],1:[],2:[]}\n",
+    "        nuc_counter = {'A':0, 'C':0, 'G':0, 'T':0}\n",
+    "        self.read_counter = {0:nuc_counter.copy(),    1:nuc_counter.copy(),    2:nuc_counter.copy()}\n",
+    "        self.total_reads = {0:0,1:0,2:0}\n",
+    "        \n",
+    "    def __iter__(self):\n",
+    "        for key in self.qscores.keys():yield key\n",
+    "            \n",
+    "    def add(self,line,individual):\n",
+    "        if line != \"\":\n",
+    "            read = SeqRead(line)\n",
+    "            self.read_counter[individual][read.call] += 1\n",
+    "            self.reads[individual].append(read)\n",
+    "            self.total_reads[individual] += 1\n",
+    "\n",
+    "    def calcMajorAllele(self):\n",
+    "        totals = {}\n",
+    "        for base in ['A','C','G','T']:\n",
+    "            for i in range(0,3):\n",
+    "                try: totals[base] += self.read_counter[i][base]\n",
+    "                except: totals[base] = self.read_counter[i][base]\n",
+    "        totals = Counter(totals)\n",
+    "        self.majorAllele, self.majorAlleleCount = totals.most_common(1)[0]  \n",
+    "        for ind in self:\n",
+    "            for read in self.reads[ind]:\n",
+    "                #if read.call == self.majorAllele: read.q = 1-read.q\n",
+    "                self.qscores[ind].append(read.q)\n",
+    "        \n",
+    "def ProcessPosition(pos):\n",
+    "    curLocus = Locus(pos)\n",
+    "    i_0_file = \"data/Individual0_position%i.txt\" % pos\n",
+    "    i_1_file = \"data/Individual1_position%i.txt\" % pos\n",
+    "    i_2_file = \"data/Individual2_position%i.txt\" % pos\n",
+    "    for line in open(i_0_file): curLocus.add(line,0)\n",
+    "    for line in open(i_1_file): curLocus.add(line,1)\n",
+    "    for line in open(i_2_file): curLocus.add(line,2)\n",
+    "    curLocus.calcMajorAllele()\n",
+    "    return curLocus        "
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "  #### R functions and R Coversion helper object"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from rpy2.robjects.packages import STAP\n",
+    "from rpy2.robjects.vectors import FloatVector as rArray\n",
+    "with open('Q2_DPBinomial.R', 'r') as fh: rtext = fh.read()\n",
+    "rfuncts = STAP(rtext,\"\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 9,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "2019-02-22 13:24:19\n",
+      "764\n",
+      "0 764 {'A': 1, 'C': 0, 'G': 6, 'T': 0}\n",
+      "1 764 {'A': 1, 'C': 0, 'G': 2, 'T': 0}\n",
+      "2 764 {'A': 0, 'C': 0, 'G': 0, 'T': 0}\n",
+      "2019-02-22 13:24:21\n",
+      "765\n",
+      "0 765 {'A': 8831, 'C': 5, 'G': 9, 'T': 3}\n",
+      "1 765 {'A': 11817, 'C': 4, 'G': 9, 'T': 5}\n",
+      "2 765 {'A': 0, 'C': 0, 'G': 0, 'T': 0}\n",
+      "2019-02-22 13:53:32\n",
+      "766\n",
+      "0 766 {'A': 8, 'C': 1, 'G': 8853, 'T': 1}\n"
+     ]
+    },
+    {
+     "ename": "KeyboardInterrupt",
+     "evalue": "",
+     "output_type": "error",
+     "traceback": [
+      "\u001b[0;31m--\u001b[0m",
+      "\u001b[0;31mKeyboardInterrupt\u001b[0mTraceback (most recent call last)",
+      "\u001b[0;32m<ipython-input-9-0c645737e62b>\u001b[0m in \u001b[0;36m<module>\u001b[0;34m\u001b[0m\n\u001b[1;32m     22\u001b[0m             \u001b[0;32mfor\u001b[0m \u001b[0mread\u001b[0m \u001b[0;32min\u001b[0m \u001b[0mdata\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mreads\u001b[0m\u001b[0;34m[\u001b[0m\u001b[0mindividual\u001b[0m\u001b[0;34m]\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m     23\u001b[0m                 \u001b[0;31m#randomDraw = bern random (1-eij,1)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m---> 24\u001b[0;31m                 \u001b[0mrdraw\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mrbern\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;36m1\u001b[0m \u001b[0;34m-\u001b[0m \u001b[0mread\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0merrorProb\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0msize\u001b[0m\u001b[0;34m=\u001b[0m\u001b[0;36m1\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m[\u001b[0m\u001b[0;36m0\u001b[0m\u001b[0;34m]\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m     25\u001b[0m                 \u001b[0mnumMatchesRef\u001b[0m \u001b[0;34m+=\u001b[0m \u001b[0mrdraw\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m     26\u001b[0m             \u001b[0;32mif\u001b[0m \u001b[0mnumMatchesRef\u001b[0m \u001b[0;34m<=\u001b[0m \u001b[0mdata\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mread_counter\u001b[0m\u001b[0;34m[\u001b[0m\u001b[0mindividual\u001b[0m\u001b[0;34m]\u001b[0m\u001b[0;34m[\u001b[0m\u001b[0mrefAllele\u001b[0m\u001b[0;34m]\u001b[0m\u001b[0;34m:\u001b[0m \u001b[0msuccessfulTrials\u001b[0m\u001b[0;34m+=\u001b[0m\u001b[0;36m1\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+      "\u001b[0;32m~/bin/anaconda3/lib/python3.7/site-packages/scipy/stats/_distn_infrastructure.py\u001b[0m in \u001b[0;36mrvs\u001b[0;34m(self, *args, **kwargs)\u001b[0m\n\u001b[1;32m   2807\u001b[0m         \"\"\"\n\u001b[1;32m   2808\u001b[0m         \u001b[0mkwargs\u001b[0m\u001b[0;34m[\u001b[0m\u001b[0;34m'discrete'\u001b[0m\u001b[0;34m]\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0;32mTrue\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m-> 2809\u001b[0;31m         \u001b[0;32mreturn\u001b[0m \u001b[0msuper\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mrv_discrete\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mself\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mrvs\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m*\u001b[0m\u001b[0margs\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0;34m**\u001b[0m\u001b[0mkwargs\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m   2810\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m   2811\u001b[0m     \u001b[0;32mdef\u001b[0m \u001b[0mpmf\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mself\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mk\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0;34m*\u001b[0m\u001b[0margs\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0;34m**\u001b[0m\u001b[0mkwds\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+      "\u001b[0;32m~/bin/anaconda3/lib/python3.7/site-packages/scipy/stats/_distn_infrastructure.py\u001b[0m in \u001b[0;36mrvs\u001b[0;34m(self, *args, **kwds)\u001b[0m\n\u001b[1;32m    936\u001b[0m         \u001b[0mrndm\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mkwds\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mpop\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m'random_state'\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0;32mNone\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    937\u001b[0m         \u001b[0margs\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mloc\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mscale\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0msize\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0m_parse_args_rvs\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m*\u001b[0m\u001b[0margs\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0;34m**\u001b[0m\u001b[0mkwds\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m--> 938\u001b[0;31m         \u001b[0mcond\u001b[0m \u001b[0;34m=\u001b[0m \u001b[0mlogical_and\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mself\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0m_argcheck\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m*\u001b[0m\u001b[0margs\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0;34m(\u001b[0m\u001b[0mscale\u001b[0m \u001b[0;34m>=\u001b[0m \u001b[0;36m0\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m    939\u001b[0m         \u001b[0;32mif\u001b[0m \u001b[0;32mnot\u001b[0m \u001b[0mnp\u001b[0m\u001b[0;34m.\u001b[0m\u001b[0mall\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mcond\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    940\u001b[0m             \u001b[0;32mraise\u001b[0m \u001b[0mValueError\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0;34m\"Domain error in arguments.\"\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+      "\u001b[0;32m~/bin/anaconda3/lib/python3.7/site-packages/scipy/stats/_discrete_distns.py\u001b[0m in \u001b[0;36m_argcheck\u001b[0;34m(self, p)\u001b[0m\n\u001b[1;32m    117\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    118\u001b[0m     \u001b[0;32mdef\u001b[0m \u001b[0m_argcheck\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mself\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mp\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0;32m--> 119\u001b[0;31m         \u001b[0;32mreturn\u001b[0m \u001b[0;34m(\u001b[0m\u001b[0mp\u001b[0m \u001b[0;34m>=\u001b[0m \u001b[0;36m0\u001b[0m\u001b[0;34m)\u001b[0m \u001b[0;34m&\u001b[0m \u001b[0;34m(\u001b[0m\u001b[0mp\u001b[0m \u001b[0;34m<=\u001b[0m \u001b[0;36m1\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n\u001b[0m\u001b[1;32m    120\u001b[0m \u001b[0;34m\u001b[0m\u001b[0m\n\u001b[1;32m    121\u001b[0m     \u001b[0;32mdef\u001b[0m \u001b[0m_logpmf\u001b[0m\u001b[0;34m(\u001b[0m\u001b[0mself\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mx\u001b[0m\u001b[0;34m,\u001b[0m \u001b[0mp\u001b[0m\u001b[0;34m)\u001b[0m\u001b[0;34m:\u001b[0m\u001b[0;34m\u001b[0m\u001b[0;34m\u001b[0m\u001b[0m\n",
+      "\u001b[0;31mKeyboardInterrupt\u001b[0m: "
+     ]
+    }
+   ],
+   "source": [
+    "import datetime\n",
+    "from scipy.stats import bernoulli\n",
+    "rbern=bernoulli.rvs \n",
+    "import time\n",
+    "nsims = 1000\n",
+    "output = open(\"Question2.txt\",\"w\")\n",
+    "output.write(\"Individual Pos MC-PVal PA-Pval NA-PVal BA-PVal MCBN-PVal\\n\")\n",
+    "output.close()\n",
+    "data=None\n",
+    "failed, totalRuns = 0, 0\n",
+    "for pos in range(764,766):\n",
+    "    print( str(datetime.datetime.now()).split('.')[0])\n",
+    "    print(pos)\n",
+    "    data = ProcessPosition(pos)\n",
+    "    for individual in data:\n",
+    "        print(individual,pos,data.read_counter[individual],)\n",
+    "        if data.total_reads[individual] == 0: #if there are no reads for that individual at that position\n",
+    "            #output.write(\"%i %i %0.4f %0.4f %0.4f %0.4f %0.4f\\n\" % (individual,pos,0.0,0.0,0.0,0.0,0.0))\n",
+    "            continue\n",
+    "        successfulTrials = 0\n",
+    "        refAllele = data.majorAllele\n",
+    "        for sim in range(nsims):\n",
+    "            numMatchesRef = 0\n",
+    "            for read in data.reads[individual]:\n",
+    "                #randomDraw = bern random (1-eij,1)\n",
+    "                rdraw = rbern(1 - read.errorProb, size=1)[0]\n",
+    "                numMatchesRef += rdraw\n",
+    "            if numMatchesRef <= data.read_counter[individual][refAllele]: successfulTrials+=1\n",
+    "            else: failed+=1\n",
+    "            totalRuns+=1\n",
+    "        MC_PVal   = successfulTrials/float(nsims)\n",
+    "        PA_Pval   = rfuncts.dpbinom(data.read_counter[individual][refAllele],rArray(data.qscores[individual]),method=\"PA\")[0]\n",
+    "        NA_PVal   = rfuncts.dpbinom(data.read_counter[individual][refAllele],rArray(data.qscores[individual]),method=\"NA\")[0]\n",
+    "        BA_PVal   = rfuncts.dpbinom(data.read_counter[individual][refAllele],rArray(data.qscores[individual]),method=\"BA\")[0]\n",
+    "        MCBN_PVal = rfuncts.dpbinom(data.read_counter[individual][refAllele],rArray(data.qscores[individual]),method=\"MC\")[0]\n",
+    "        #outString = \"\\t\".join([str(individual),str(pos),\"%0.8f\" % MC_PVal,\"%0.8f\" % PA_Pval,\"%0.8f\" % NA_PVal,\"%0.8f\" % BA_PVal,\"%0.8f\" % MCBN_PVal,str(data.read_counter[individual],)])\n",
+    "        #output.write(outString+\"\\n\")\n",
+    "        output = open(\"Question2.txt\",\"a\")\n",
+    "        output.write(\"%i %i %0.4f %0.4f %0.4f %0.4f %0.4f\\n\" % (individual,pos,MC_PVal,PA_Pval,NA_PVal,BA_PVal,MCBN_PVal))\n",
+    "        output.close()\n",
+    "output.close() "
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": []
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 31,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "Individual Pos MC-PVal PA-Pval NA-PVal BA-PVal MCBN-PVal\n",
+      "0\t768\t1.00000000\t0.51716885\t0.86695566\t0.90598922\t0.08050000\t{'A': 2, 'C': 2, 'G': 8869, 'T': 2}\n",
+      "1\t768\t0.80000000\t0.50085199\t0.45096525\t0.48850850\t0.11310000\t{'A': 6, 'C': 2, 'G': 11858, 'T': 5}\n",
+      "2\t768\t0.0000\t0.0000\t0.0000\t0.0000\t0.0000\t{'A': 0, 'C': 0, 'G': 0, 'T': 0}\n",
+      "0\t962\t0.00000000\t0.00000000\t0.00000000\t0.00000000\t0.00000000\t{'A': 4044, 'C': 3, 'G': 4827, 'T': 9}\n",
+      "1\t962\t0.00000000\t0.00000000\t0.00000000\t0.00000000\t0.00000000\t{'A': 1656, 'C': 1, 'G': 10221, 'T': 7}\n",
+      "2\t962\t0.00000000\t0.00000000\t0.00000000\t0.00000000\t0.00000000\t{'A': 72, 'C': 10082, 'G': 284, 'T': 11}\n",
+      "0\t964\t0.00000000\t0.00000000\t0.00000000\t0.00000000\t0.00000000\t{'A': 3742, 'C': 5135, 'G': 4, 'T': 5}\n",
+      "1\t964\t0.00000000\t0.33118055\t0.00000000\t0.00000000\t0.00000000\t{'A': 46, 'C': 11835, 'G': 0, 'T': 5}\n",
+      "2\t964\t0.00000000\t0.46377626\t0.00000052\t0.00168131\t0.00000000\t{'A': 8, 'C': 10432, 'G': 5, 'T': 5}\n",
+      "0\t1124\t0.0000\t0.0000\t0.0000\t0.0000\t0.0000\t{'A': 0, 'C': 0, 'G': 0, 'T': 0}\n",
+      "1\t1124\t0.0000\t0.0000\t0.0000\t0.0000\t0.0000\t{'A': 0, 'C': 0, 'G': 0, 'T': 0}\n",
+      "2\t1124\t0.00000000\t0.00000000\t0.00000000\t0.00000000\t0.00000000\t{'A': 9151, 'C': 5, 'G': 1295, 'T': 0}\n",
+      "0\t1000\t0.00000000\t0.45016322\t0.00000000\t0.00000000\t0.00000000\t{'A': 4, 'C': 8871, 'G': 1, 'T': 9}\n",
+      "1\t1000\t0.00000000\t0.43380912\t0.00000000\t0.00000001\t0.00000000\t{'A': 5, 'C': 11860, 'G': 0, 'T': 20}\n",
+      "2\t1000\t0.00000000\t0.00000000\t0.00000000\t0.00000000\t0.00000000\t{'A': 11, 'C': 0, 'G': 10440, 'T': 1}\n"
+     ]
+    }
+   ],
+   "source": [
+    "%%bash\n",
+    "cat Question2.txt"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 6,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "fh = open(\"data/I0_Pos962_data.txt\",\"w\")\n",
+    "fh.write(\"i\\tj\\tq\\ta\\n\")\n",
+    "nRead = 0\n",
+    "data = ProcessPosition(962)\n",
+    "for read in data.reads[0]: \n",
+    "    nRead +=1\n",
+    "    fh.write(\"0\\t%i\\t%i\\t%i\\n\" % (nRead,read.q,int(read.call == data.majorAllele)))\n",
+    "fh.close()\n",
+    "fh = open(\"data/I0_Pos768_data.txt\",\"w\")\n",
+    "fh.write(\"i\\tj\\tq\\ta\\n\")\n",
+    "nRead = 0\n",
+    "data = ProcessPosition(768)\n",
+    "for read in data.reads[0]: \n",
+    "    nRead +=1\n",
+    "    fh.write(\"0\\t%i\\t%i\\t%i\\n\" % (nRead,read.q,int(read.call == data.majorAllele)))\n",
+    "fh.close()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 25,
+   "metadata": {},
+   "outputs": [
+    {
+     "name": "stdout",
+     "output_type": "stream",
+     "text": [
+      "4827\n",
+      "{'A': 4044, 'C': 3, 'G': 4827, 'T': 9}\n",
+      "8869\n",
+      "{'A': 2, 'C': 2, 'G': 8869, 'T': 2}\n"
+     ]
+    }
+   ],
+   "source": [
+    "data = ProcessPosition(962)\n",
+    "print(data.read_counter[0][data.majorAllele])\n",
+    "print(data.read_counter[0])\n",
+    "data = ProcessPosition(768)\n",
+    "print(data.read_counter[0][data.majorAllele])\n",
+    "print(data.read_counter[0])"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.7.1"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}
