@@ -180,6 +180,7 @@ def T_s(seq,pwm,alphas,transMatrix,H_proms):
         tCount += int(L_H_q1/L_H_promoters >= 1)
     return tCount
 
+fh = open("PvaluesOfMC_Q2.txt","w")
 numSims = 100
 for index in range(len(H_promoters)):
     tSuccesses = 0
@@ -187,3 +188,5 @@ for index in range(len(H_promoters)):
         genSeq = GenerateSeq(H_promoters[index],alphas[index],1000)
         tSuccesses += int(T_s(genSeq,pwm,alphas[index],transMat,H_promoters[index]) >= tCounts[index])
     print(index,tSuccesses/float(numSims))
+    fh.write("Sequence %i *.2f" % (index,tSuccesses/float(numSims)))
+fh.close()
