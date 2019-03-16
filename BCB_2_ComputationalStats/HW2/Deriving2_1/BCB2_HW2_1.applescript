@@ -1,13 +1,3 @@
-\documentclass{article}
-\usepackage{geometry}
-\geometry{
- a4paper,
- total={180mm,265mm},
- left=5mm,
- top=5mm,
- }
-\usepackage{graphicx}
-\usepackage{tikz}
 \usepackage[normalem]{ulem}
 \usepackage{mathrsfs}
 \usepackage{float}
@@ -23,7 +13,7 @@ $\textbf{Question 1b}:$
 
 $H_0: $ ${\displaystyle \prod_{i=1}^{l}}{\displaystyle \prod_{j=1}^{9}} P_{S_{i}N_{j}}$
 
-$H_1: $ ${\displaystyle \prod_{i=1}^{l}}{\displaystyle \prod_{j=1}^{8}} \alpha_{S_i1} \cdot P_{jS_{ij}S_{ij+1}}$
+$H_1: $ ${\displaystyle \prod_{i=1}^{l}}\alpha_{S_i1}{\displaystyle \prod_{j=1}^{8}}  \cdot P_{jS_{ij}S_{ij+1}}$
 
 \bigbreak
 Using algebra, partial derivatives, and logarithms:
