@@ -35,7 +35,7 @@ print(mults)
 sums <- sum(mults)
 print(sums)
 
-As <- -(matrix.a/sums)
+As <- -(matrix.x/sums)
 print(As)
 
 
