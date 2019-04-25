@@ -1,0 +1,331 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1671\cocoasubrtf400
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\margl1440\margr1440\vieww10800\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 \\documentclass\{article\}\
+\\usepackage\{geometry\}\
+\\geometry\{\
+ a4paper,\
+ total=\{180mm,265mm\},\
+ left=5mm,\
+ top=5mm,\
+ \}\
+\\usepackage\{graphicx\}\
+\\usepackage\{tikz\}\
+\\usepackage[normalem]\{ulem\}\
+\\usepackage\{mathrsfs\}\
+\\usepackage\{float\}\
+\\usepackage\{mathtools\}\
+\\usepackage\{amsmath\}\
+\\usepackage\{bbm\}\
+\
+\
+\\begin\{document\}\
+\
+\\textbf\{Derivation Type 1:\}\
+\
+\
+\
+Starting with the complete log-likelihood for derivations: plug into the equation at bottom of page 9 (of emh.pdf notes), using the general derivations from the top of page 9 to get to the plug-in point:\
+\
+\
+$L_C(\\textbf\{$\\theta$\}|\\textbf\{Y\})$  $= \{\\displaystyle\\prod_\{i=1\}^\{n\}\} L_\{C_\{i\}\}(\\textbf\{$\\theta$\}|X_i,Z_i)$\
+\
+$L_C(\\textbf\{$\\theta$\}|\\textbf\{Y\})$ $= \{\\displaystyle\\prod_\{i=1\}^\{n\}\}\{\\displaystyle\\prod_\{k=1\}^\{K\}\}$ $[Pr(X_i,Z_i=k)]^\{\{\\mathbb\{1\}\\\{Z_i=k\\\}\}$\
+\
+$l_C(\\textbf\{$\\theta$\}|\\textbf\{Y\})= \{\\displaystyle\\sum_\{i=1\}^\{n\}\}\{\\displaystyle\\sum_\{k=1\}^\{K\}\}$ $\{\{\\mathbb\{1\}\\\{Z_i=k\\\}\}LnPr(X_i,Z_i=k)\}$\
+\
+$\\mathbb\{E\}$ $[l_C(\\textbf\{$\\theta$\}|\\textbf\{Y\})|\\textbf\{X\};\\textbf\{$\\theta$\}^m]$ $ = \{\\displaystyle\\sum_\{i=1\}^\{n\}\}\{\\displaystyle\\sum_\{k=1\}^\{K\}\}$ $\\mathbb\{E\}$ $[\{\{\\mathbb\{1\}\\\{Z_i=k\\\}\}|\\textbf\{X\};\\textbf\{$\\theta$\}^m]LnPr(X_i,Z_i=k)\}$ $ = \{\\displaystyle\\sum_\{i=1\}^\{n\}\}\{\\displaystyle\\sum_\{k=1\}^\{K\}\}Pr(Z_i=k|X_i;\\textbf\{$\\theta$\}^m)LnPr(X_i,Z_i=k)$\
+\
+\\bigbreak\
+\
+$\{\\displaystyle\\sum_\{i=1\}^\{N\}\}$ $\{\\displaystyle \\sum_\{k \\in K\}\}$ \
+$Pr(Z_i = k | X_i; \\theta^m) \\cdot Ln(Pr(X_i \\cap Z_i =k))$\
+\
+\\bigbreak\
+\
+Where\
+\
+AA $\\xrightarrow\{\}$ $\{\\mathbb\{1\}\\\{X_i=A\\\}\}$ $\\xrightarrow\{\}$ $\\frac\{P_A^2\}\{P_A^2+2P_AP_O\}$ $\\xrightarrow\{\}$ $LnP_A^2$\
+\
+AO $\\xrightarrow\{\}$ $\{\\mathbb\{1\}\\\{X_i=A\\\}\}$ $\\xrightarrow\{\}$ $\\frac\{2P_AP_O\}\{P_A^2+2P_AP_O\}$ $\\xrightarrow\{\}$ $Ln2P_AP_O$\
+\
+BB $\\xrightarrow\{\}$ $\{\\mathbb\{1\}\\\{X_i=B\\\}\}$ $\\xrightarrow\{\}$ $\\frac\{P_B^2\}\{P_B^2+2P_BP_O\}$ $\\xrightarrow\{\}$ $LnP_B^2$\
+\
+BO $\\xrightarrow\{\}$ $\{\\mathbb\{1\}\\\{X_i=B\\\}\}$ $\\xrightarrow\{\}$ $\\frac\{2P_BP_O\}\{P_B^2+2P_BP_O\}$ $\\xrightarrow\{\}$ $Ln2P_BP_O$\
+\
+AB $\\xrightarrow\{\}$ $\{\\mathbb\{1\}\\\{X_i=AB\\\}\}$ $\\xrightarrow\{\}$ $1$ $\\xrightarrow\{\}$ $Ln2P_AP_B$\
+\
+O $\\xrightarrow\{\}$ $\{\\mathbb\{1\}\\\{X_i=O\\\}\}$ $\\xrightarrow\{\}$ $1$ $\\xrightarrow\{\}$ $LnP_O^2$\
+\
+\
+$Q=$ $n_A(\\frac\{2P_A^\{\{2\}^m\}\}\{P_A^\{\{2\}^m\}+2P_A^mP_O^m\}LnP_A + \\frac\{2P_A^mP_O^m\}\{P_A^\{\{2\}^m\}+2P_A^mP_O^m\}Ln2P_AP_O)$\
+$ + n_B(\\frac\{2P_B^\{\{2\}^m\}\}\{P_B^\{\{2\}^m\}+2P_B^mP_O^m\}LnP_B + \\frac\{2P_B^mP_O^m\}\{P_B^\{\{2\}^m\}+2P_B^mP_O^m\}Ln2P_BP_O)$\
+\
+$ + n_\{AB\}(Ln2P_AP_B) + n_O(2LnP_O) + \\lambda(1-P_A-P_B-P_O)$\
+\
+\\bigbreak\
+\
+$\\frac\{\\partial Q\}\{\\partial P_A\}$ $ = n_A((\\frac\{2P_A^\{\{2\}^m\}\}\{P_A^\{\{2\}^m\}+2P_A^mP_O^m\}(\\frac\{1\}\{P_A\})$\
+$ + \\frac\{2P_A^mP_O^m\}\{P_A^\{\{2\}^m\}+2P_A^mP_O^m\}(\\frac\{1\}\{P_A\})) + n_\{AB\}(\\frac\{1\}\{P_A\}) - \\lambda = 0$\
+\
+$ = \\frac\{2n_A\}\{P_A\}(\\frac\{P_A^\{\{2\}^m\}+P_A^mP_O^m\}\{P_A^\{\{2\}^m\}+2P_A^mP_O^m\}) + \\frac\{n_\{AB\}\}\{P_A\} = \\lambda$\
+\
+$ = \\frac\{1\}\{\\lambda\}[2n_A(\\frac\{P_A^\{\{2\}^m\}+P_A^mP_O^m\}\{P_A^\{\{2\}^m\}+2P_A^mP_O^m\}) + n_\{AB\}] = \\hat\{P_A\}$\
+\
+\\bigbreak\
+\
+$\\frac\{\\partial Q\}\{\\partial P_B\}$ $ = \\frac\{2n_B\}\{P_B\} ([\\frac\{P_B^\{\{2\}^m\}\}\{P_B^\{\{2\}^m\}+2P_B^mP_O^m\}] + $\
+$ [\\frac\{P_B^mP_O^m\}\{P_B^\{\{2\}^m\}+2P_B^mP_O^m\}]) + \\frac\{n_\{AB\}\}\{P_B\} - \\lambda = 0$\
+\
+%$ = \\frac\{2n_B\}\{P_B\}(\\frac\{P_B^\{\{2\}^m\}+P_B^mP_O^m\}\{P_B^\{\{2\}^m\}+2P_B^mP_O^m\}) + %\\frac\{n_\{AB\}\}\{P_A\} = \\lambda$\
+\
+$ = \\frac\{1\}\{\\lambda\}[2n_B(\\frac\{P_B^\{\{2\}^m\}+P_B^mP_O^m\}\{P_B^\{\{2\}^m\}+2P_B^mP_O^m\}) + n_\{AB\}] = \\hat\{P_B\}$\
+    \
+\\bigbreak\
+\
+$\\frac\{\\partial Q\}\{\\partial P_O\}$ $ = \\frac\{2n_A\}\{P_O\} ([\\frac\{P_A^mP_O^m\}\{P_A^\{\{2\}^m\}+2P_A^mP_O^m\}]) +  \\frac\{2n_B\}\{P_O\} ([\\frac\{P_B^mP_O^m\}\{P_B^\{\{2\}^m\}+2P_B^mP_O^m\}]) +  \\frac\{2n_O\}\{P_O\} - \\lambda = 0$\
+\
+$ = \\frac\{1\}\{\\lambda\}[2n_A[\\frac\{P_A^mP_O^m\}\{P_A^\{\{2\}^m\}+2P_A^mP_O^m\}] + 2n_B[\\frac\{P_B^mP_O^m\}\{P_B^\{\{2\}^m\}+2P_B^mP_O^m\}] + 2n_O] = \\hat\{P_O\}$\
+\
+\\bigbreak\
+\
+$P_A + P_B + P_O = 1$\
+\
+$[2n_A[\\frac\{P_A^\{\{2\}^m\} + P_A^mP_O^m\}\{P_A^\{\{2\}^m\} + 2P_A^mP_O^m\}] + n_\{AB\} + $\
+$2n_B[\\frac\{P_B^\{\{2\}^m\} + P_B^mP_O^m\}\{P_B^\{\{2\}^m\} + 2P_B^mP_O^m\}] + n_\{AB\} + $\
+$2n_A[\\frac\{P_A^mP_O^m\}\{P_A^\{\{2\}^m\}+2P_A^mP_O^m\}] + $\
+$2n_B[\\frac\{P_B^mP_O^m\}\{P_B^\{\{2\}^m\}+2P_B^mP_O^m\}] + 2n_O ] = \\lambda$\
+\
+$[2n_B + 2n_\{AB\} + 2n_A +2n_O] = \\lambda$\
+\
+$2[n_B + n_\{AB\} + n_A + n_O] = \\lambda$\
+\
+$2N = \\lambda$\
+\
+\\bigbreak\
+\\bigbreak\
+\\bigbreak\
+\
+\\textbf\{Derivation Type 2:\}\
+\
+$L_C(P_A,P_B,P_O|\\Bar\{Y\}) = \\binom\{N\}\{n_\{AA\}n_\{AB\}n_\{AO\}n_\{BB\}n_\{BO\}n_\{OO\}\}P_A^\{2n_\{AA\}\}2(P_AP_O)^\{n_\{AO\}\}2(P_AP_B)^\{n_\{AB\}\}P_B^\{2n_\{BB\}\}2(P_BP_O)^\{n_\{BO\}\}P_O^\{2n_\{OO\}\}$\
+\
+$l_C = Ln\\binom\{N\}\{n_\{AA\}n_\{AB\}n_\{AO\}n_\{BB\}n_\{BO\}n_\{OO\}\}$\
+\
+$ + 2n_\{AA\}LnP_A + Ln2 + n_\{AO\}Ln(P_AP_O) + Ln2 + n_\{AB\}Ln(P_AP_B) + 2n_\{BB\}LnP_B + Ln2 + n_\{BO\}Ln(P_BP_O) + 2n_\{OO\}LnP_O$\
+\
+\\bigbreak\
+\
+$\\hspace\{5mm\}$ $n_\{AO\}Ln(P_AP_O) \\xrightarrow\{\} n_\{AO\}(LnP_A + LnP_O) \\xrightarrow\{\} n_\{AO\}LnP_A + n_\{AO\}LnP_O$\
+\
+$\\hspace\{5mm\}$ $n_\{AB\}Ln(P_AP_B) \\xrightarrow\{\} n_\{AB\}(LnP_A + LnP_B) \\xrightarrow\{\} n_\{AB\}LnP_A + n_\{AB\}LnP_B$\
+\
+$\\hspace\{5mm\}$ $n_\{BO\}Ln(P_BP_O) \\xrightarrow\{\} n_\{BO\}(LnP_B + LnP_O) \\xrightarrow\{\} n_\{BO\}LnP_B + n_\{BO\}LnP_O$\
+\
+\\bigbreak\
+\
+$Q(P_A,P_B,P_O; P_A^m, P_B^m, P_O^m;Y)$ \
+$=E[l_C(P_A,P_B,P_O|Y)|\\Bar\{X\};P_A^m,P_B^m,P_O^m]$\
+\
+$=E[Ln\\binom\{N\}\{n_\{AA\}n_\{AB\}n_\{AO\}n_\{BB\}n_\{BO\}n_\{OO\}\}$\
+\
+$+ 2n_\{AA\}LnP_A +  n_\{AO\}Ln(P_AP_O) + n_\{AB\}Ln(P_AP_B) + 2n_\{BB\}LnP_B +  n_\{BO\}Ln(P_BP_O) + 2n_\{OO\}LnP_O\
+|\\Bar\{X\};P_A^m,P_B^m,P_O^m]$\
+\
+\\bigbreak\
+\
+$=E[Ln\\binom\{N\}\{n_\{AA\}n_\{AB\}n_\{AO\}n_\{BB\}n_\{BO\}n_\{OO\}\}|\\Bar\{X\};P_A^m,P_B^m,P_O^m] \
+\
+$+ E[2n_\{AA\}LnP_A|\\Bar\{X\};P_A^m,P_B^m,P_O^m] + E[Ln2|\\Bar\{X\};P_A^m,P_B^m,P_O^m]$\
+$ + E[n_\{AO\}LnP_A|\\Bar\{X\};P_A^m,P_B^m,P_O^m]$\
+\
+$+ E[n_\{AO\}LnP_O|\\Bar\{X\};P_A^m,P_B^m,P_O^m] + ...$\
+\
+\\bigbreak\
+\
+$= C + 2LnP_A(E[n_\{AA\}|\\Bar\{X\};P_A^m,P_B^m,P_O^m] + C + LnP_A(E[n_\{AO\}|\\Bar\{X\};P_A^m,P_B^m,P_O^m] + C + LnP_O(E[n_\{AO\}|\\Bar\{X\};P_A^m,P_B^m,P_O^m] + C + LnP_A(E[n_\{AB\}|\\Bar\{X\};P_A^m,P_B^m,P_O^m]$\
+\
+$ + C + LnP_B(E[n_\{AB\}|\\Bar\{X\};P_A^m,P_B^m,P_O^m] + C + 2LnP_B(E[n_\{BB\}|\\Bar\{X\};P_A^m,P_B^m,P_O^m] + C + LnP_B(E[n_\{BO\}|\\Bar\{X\};P_A^m,P_B^m,P_O^m] + C + LnP_O(E[n_\{BO\}|\\Bar\{X\};P_A^m,P_B^m,P_O^m]$\
+\
+$ + C + 2LnP_O(E[n_\{OO\}|\\Bar\{X\};P_A^m,P_B^m,P_O^m]$\
+\
+\
+\\bigbreak\
+\
+$Q = $ $2E(n_\{AA\}|\\Bar\{X\};P_A^m,P_B^m,P_O^m)LnP_A^\{m+1\} + E(n_\{AO\}|\\Bar\{X\};P_A^m,P_B^m,P_O^m)LnP_A^\{m+1\} + E(n_\{AB\}|\\Bar\{X\};P_A^m,P_B^m,P_O^m)LnP_A^\{m+1\}$\
+\
+$ + 2E(n_\{BB\}|\\Bar\{X\};P_A^m,P_B^m,P_O^m)LnP_B^\{m+1\} + E(n_\{BO\}|\\Bar\{X\};P_A^m,P_B^m,P_O^m)LnP_B^\{m+1\} + E(n_\{AB\}|\\Bar\{X\};P_A^m,P_B^m,P_O^m)LnP_B^\{m+1\}$\
+\
+$ + 2E(n_\{OO\}|\\Bar\{X\};P_A^m,P_B^m,P_O^m)LnP_O^\{m+1\} + E(n_\{AO\}|\\Bar\{X\};P_A^m,P_B^m,P_O^m)LnP_O^\{m+1\}$\
+\
+$+ E(n_\{BO\}|\\Bar\{X\};P_A^m,P_B^m,P_O^m)LnP_O^\{m+1\} -\\lambda(1-P_A^\{m+1\}-P_B^\{m+1\}-P_O^\{m+1\})$\
+\
+\\bigbreak\
+\
+Q is now a function of $P_A^\{m+1\},P_B^\{m+1\},P_O^\{m+1\}$; $Q=f(P_A^\{m+1\},P_B^\{m+1\},P_O^\{m+1\})$, \
+take the partial derivatives of $P_A^\{m+1\},P_B^\{m+1\},P_O^\{m+1\}$ and set them equal to zero to maximize: $\\frac\{\\partial Q\}\{\\partial P_A^\{m+1\}\} = 0$, $\\frac\{\\partial Q\}\{\\partial P_B^\{m+1\}\} = 0$, $\\frac\{\\partial Q\}\{\\partial P_O^\{m+1\}\} = 0$\
+\
+\\bigbreak\
+\
+Need the expectations, find the expectation values of: \
+$n_\{AA\}, n_\{AO\}, n_\{BB\}, n_\{BO\}, n_\{AB\}, n_\{OO\},$ using observed data and current iterations value of: $P_A^\{m\},P_B^\{m\},P_O^\{m\}$ \
+\
+\\bigbreak\
+\
+$E(n_\{AA\}|\\Bar\{X\};P_A^\{m\},P_B^\{m\},P_O^\{m\}) = n_APr(AA_\{geno\}|A_\{pheno\})$\
+$ = n_A \\frac\{Pr(AA_\{geno\} \\cap A_\{pheno\})\}\{Pr(A_\{pheno\})\}$\
+$ = n_A \\frac\{P_A^\{\{m\}^2\}\}\{P_A^\{\{m\}^2\} + 2P_A^mP_O^m\}$\
+\
+$E(n_\{AO\}|\\Bar\{X\};P_A^\{m\},P_B^\{m\},P_O^\{m\}) = n_APr(AO_\{geno\}|A_\{pheno\})$\
+$ = n_A \\frac\{Pr(AO_\{geno\} \\cap A_\{pheno\})\}\{Pr(A_\{pheno\})\}$\
+$ = n_A \\frac\{2P_AP_O\}\{P_A^\{\{m\}^2\} + 2P_A^mP_O^m\}$\
+\
+\
+$E(n_\{BB\}|\\Bar\{X\};P_A^\{m\},P_B^\{m\},P_O^\{m\}) = n_BPr(BB_\{geno\}|B_\{pheno\})$\
+$ = n_B \\frac\{Pr(BB_\{geno\} \\cap B_\{pheno\})\}\{Pr(B_\{pheno\})\}$\
+$ = n_B \\frac\{P_B^\{\{m\}^2\}\}\{P_B^\{\{m\}^2\} + 2P_B^mP_O^m\}$\
+\
+$E(n_\{BO\}|\\Bar\{X\};P_A^\{m\},P_B^\{m\},P_O^\{m\}) = n_BPr(BO_\{geno\}|B_\{pheno\})$\
+$ = n_B \\frac\{Pr(BO_\{geno\} \\cap B_\{pheno\})\}\{Pr(B_\{pheno\})\}$\
+$ = n_B \\frac\{2P_BP_O\}\{P_B^\{\{m\}^2\} + 2P_B^mP_O^m\}$\
+\
+\
+$E(n_\{AB\}|\\Bar\{X\};P_A^\{m\},P_B^\{m\},P_O^\{m\}) = n_\{AB_\{pheno\}\}$\
+\
+$E(n_\{OO\}|\\Bar\{X\};P_A^\{m\},P_B^\{m\},P_O^\{m\}) = n_\{O_\{pheno\}\}$\
+\
+\\bigbreak\
+\\bigbreak\
+\
+\\textbf\{For: \\textit\{\\textbf\{$\\hat\{P\}\{_A^\{m\}\}$\}\}\}\
+\
+$\\frac\{\\partial Q\}\{\\partial P_A^\{m\}\}$\
+\
+= $(\\frac\{1\}\{P_A^\{m\}\})$ $[2E(n_\{AA\}|\\Bar\{X\}, P_A^m, P_B^m, P_O^m) + E(n_\{AO\}|\\Bar\{X\}, P_A^m, P_B^m, P_O^m) + E(n_\{AB\}|\\Bar\{X\}, P_A^m, P_B^m, P_O^m)] - \\lambda = 0$\
+\
+= $(\\frac\{1\}\{P_A^\{m\}\})$ $[2E(n_\{AA\}|\\Bar\{X\}, P_A^m, P_B^m, P_O^m) + E(n_\{AO\}|\\Bar\{X\}, P_A^m, P_B^m, P_O^m) + E(n_\{AB\}|\\Bar\{X\}, P_A^m, P_B^m, P_O^m)] = \\lambda$\
+\
+= $(\\frac\{1\}\{\\lambda\})$ $[2E(n_\{AA\}|\\Bar\{X\}, P_A^m, P_B^m, P_O^m) + E(n_\{AO\}|\\Bar\{X\}, P_A^m, P_B^m, P_O^m) + E(n_\{AB\}|\\Bar\{X\}, P_A^m, P_B^m, P_O^m)] = \\hat\{P\}\{_A^\{m\}\}$\
+\
+= $(\\frac\{1\}\{\\lambda\})$ $[2(n_A \\frac\{P_A^\{m^2\}\}\{P_A^\{m^2\}+2P_A^\{m\}P_O^\{m\}\}) + (n_A \\frac\{2P_A^\{m\}P_O^\{m\}\}\{P_A^\{m^2\}+2P_A^\{m\}P_O^\{m\}\}) + (n_\{AB_\{pheno\}\})] = \\hat\{P\}\{_A^\{m\}\}$\
+\
+\\bigbreak\
+\
+\
+\
+\\textbf\{For: \\textit\{\\textbf\{$\\hat\{P\}\{_B^\{m\}\}$\}\}\}\
+\
+$\\frac\{\\partial Q\}\{\\partial P_B^\{m\}\}$\
+\
+= $(\\frac\{1\}\{P_B^\{m\}\})$ $[2E(n_\{BB\}|\\Bar\{X\}, P_A^m, P_B^m, P_O^m) + E(n_\{BO\}|\\Bar\{X\}, P_A^m, P_B^m, P_O^m) + E(n_\{AB\}|\\Bar\{X\}, P_A^m, P_B^m, P_O^m)] - \\lambda = 0$\
+\
+= $(\\frac\{1\}\{P_B^\{m\}\})$ $[2E(n_\{BB\}|\\Bar\{X\}, P_A^m, P_B^m, P_O^m) + E(n_\{BO\}|\\Bar\{X\}, P_A^m, P_B^m, P_O^m) + E(n_\{AB\}|\\Bar\{X\}, P_A^m, P_B^m, P_O^m)] = \\lambda$\
+\
+= $(\\frac\{1\}\{\\lambda\})$ $[2E(n_\{BB\}|\\Bar\{X\}, P_A^m, P_B^m, P_O^m) + E(n_\{BO\}|\\Bar\{X\}, P_A^m, P_B^m, P_O^m) + E(n_\{AB\}|\\Bar\{X\}, P_A^m, P_B^m, P_O^m)] = \\hat\{P\}\{_B^\{m\}\}$\
+\
+= $(\\frac\{1\}\{\\lambda\})$ $[2(n_B \\frac\{P_B^\{m^2\}\}\{P_B^\{m^2\}+2P_B^\{m\}P_O^\{m\}\}) + (n_B \\frac\{2P_B^\{m\}P_O^\{m\}\}\{P_B^\{m^2\}+2P_B^\{m\}P_O^\{m\}\}) + (n_\{AB_\{pheno\}\})] = \\hat\{P\}\{_B^\{m\}\}$\
+\
+\\bigbreak\
+\
+\
+\
+\\textbf\{For: \\textit\{\\textbf\{$\\hat\{P\}\{_O^\{m\}\}$\}\}\}\
+\
+$\\frac\{\\partial Q\}\{\\partial P_O^\{m\}\}$\
+\
+= $(\\frac\{1\}\{P_O^\{m\}\})$ $[2E(n_\{OO\}|\\Bar\{X\}, P_A^m, P_B^m, P_O^m) + E(n_\{AO\}|\\Bar\{X\}, P_A^m, P_B^m, P_O^m) + E(n_\{BO\}|\\Bar\{X\}, P_A^m, P_B^m, P_O^m)] - \\lambda = 0$\
+\
+= $(\\frac\{1\}\{P_O^\{m\}\})$ $[2E(n_\{OO\}|\\Bar\{X\}, P_A^m, P_B^m, P_O^m) + E(n_\{AO\}|\\Bar\{X\}, P_A^m, P_B^m, P_O^m) + E(n_\{BO\}|\\Bar\{X\}, P_A^m, P_B^m, P_O^m)] = \\lambda$\
+\
+= $(\\frac\{1\}\{\\lambda\})$ $[2E(n_\{OO\}|\\Bar\{X\}, P_A^m, P_B^m, P_O^m) + E(n_\{AO\}|\\Bar\{X\}, P_A^m, P_B^m, P_O^m) + E(n_\{BO\}|\\Bar\{X\}, P_A^m, P_B^m, P_O^m)] = \\hat\{P\}\{_O^\{m\}\}$\
+\
+= $(\\frac\{1\}\{\\lambda\})$ $[2(n_\{O_\{pheno\}\}) + (n_A \\frac\{2P_A^\{m\}P_O^\{m\}\}\{P_A^\{m^2\}+2P_A^\{m\}P_O^\{m\}\}) + (n_B \\frac\{2P_B^\{m\}P_O^\{m\}\}\{P_B^\{m^2\}+2P_B^\{m\}P_O^\{m\}\}] = \\hat\{P\}\{_O^\{m\}\}$\
+\
+\\bigbreak\
+\
+$\\hat\{P\}\{_A^\{m\}\} + \\hat\{P\}\{_B^\{m\}\} + \\hat\{P\}\{_O^\{m\}\} = 1$\
+\
+\\bigbreak\
+\
+$(\\frac\{1\}\{\\lambda\})$ $[2(n_A \\frac\{P_A^\{m^2\}\}\{P_A^\{m^2\}+2P_A^\{m\}P_O^\{m\}\}) + (n_A \\frac\{2P_A^\{m\}P_O^\{m\}\}\{P_A^\{m^2\}+2P_A^\{m\}P_O^\{m\}\}) + (n_\{AB_\{pheno\}\})]$\
+\
+$ + (\\frac\{1\}\{\\lambda\})$ $[2(n_B \\frac\{P_B^\{m^2\}\}\{P_B^\{m^2\}+2P_B^\{m\}P_O^\{m\}\}) + (n_B \\frac\{2P_B^\{m\}P_O^\{m\}\}\{P_B^\{m^2\}+2P_B^\{m\}P_O^\{m\}\}) + (n_\{AB_\{pheno\}\})]$\
+\
+$ + (\\frac\{1\}\{\\lambda\})$ $[2(n_\{O_\{pheno\}\}) + (n_A \\frac\{2P_A^\{m\}P_O^\{m\}\}\{P_A^\{m^2\}+2P_A^\{m\}P_O^\{m\}\}) + (n_B \\frac\{2P_B^\{m\}P_O^\{m\}\}\{P_B^\{m^2\}+2P_B^\{m\}P_O^\{m\}\})] = 1$\
+\
+\\bigbreak\
+\
+$(\\frac\{1\}\{\\lambda\})$ $[[2(n_A \\frac\{P_A^\{m^2\}\}\{P_A^\{m^2\}+2P_A^\{m\}P_O^\{m\}\}) + (n_A \\frac\{2P_A^\{m\}P_O^\{m\}\}\{P_A^\{m^2\}+2P_A^\{m\}P_O^\{m\}\}) + (n_\{AB_\{pheno\}\})]$\
+\
+$ +  [2(n_B \\frac\{P_B^\{m^2\}\}\{P_B^\{m^2\}+2P_B^\{m\}P_O^\{m\}\}) + (n_B \\frac\{2P_B^\{m\}P_O^\{m\}\}\{P_B^\{m^2\}+2P_B^\{m\}P_O^\{m\}\}) + (n_\{AB_\{pheno\}\})]$ $ + [2(n_\{O_\{pheno\}\}) + (n_A \\frac\{2P_A^\{m\}P_O^\{m\}\}\{P_A^\{m^2\}+2P_A^\{m\}P_O^\{m\}\}) + (n_B \\frac\{2P_B^\{m\}P_O^\{m\}\}\{P_B^\{m^2\}+2P_B^\{m\}P_O^\{m\}\})]] = 1$\
+\
+\\bigbreak\
+\
+$(\\frac\{1\}\{\\lambda\})$ $[2(n_A \\frac\{P_A^\{m^2\}\}\{P_A^\{m^2\}+2P_A^\{m\}P_O^\{m\}\}) + 2(n_A \\frac\{2P_A^\{m\}P_O^\{m\}\}\{P_A^\{m^2\}+2P_A^\{m\}P_O^\{m\}\}) + 2(n_\{AB_\{pheno\}\})$ $ + 2(n_B \\frac\{P_B^\{m^2\}\}\{P_B^\{m^2\}+2P_B^\{m\}P_O^\{m\}\})$\
+\
+$ + 2(n_B \\frac\{2P_B^\{m\}P_O^\{m\}\}\{P_B^\{m^2\}+2P_B^\{m\}P_O^\{m\}\}) + 2(n_\{O_\{pheno\}\})] = 1$ \
+\
+\\bigbreak\
+\
+$2[(n_A \\frac\{P_A^\{m^2\}\}\{P_A^\{m^2\}+P_A^\{m\}P_O^\{m\}\}) + (n_A \\frac\{2P_A^\{m\}P_O^\{m\}\}\{P_A^\{m^2\}+2P_A^\{m\}P_O^\{m\}\}) + (n_\{AB_\{pheno\}\})$ $ + (n_B \\frac\{P_B^\{m^2\}\}\{P_B^\{m^2\}+2P_B^\{m\}P_O^\{m\}\}) + (n_B \\frac\{2P_B^\{m\}P_O^\{m\}\}\{P_B^\{m^2\}+2P_B^\{m\}P_O^\{m\}\}) + (n_\{O_\{pheno\}\})] = \\lambda$ \
+\
+\\bigbreak\
+\
+$\\lambda = 2N$\
+\
+\\bigbreak\
+\\bigbreak\
+\\bigbreak\
+\
+\\textbf\{Derivation Type 3:\}\
+\
+A $\\xrightarrow\{\}$ 1\
+\
+B $\\xrightarrow\{\}$ 2\
+\
+AB $\\xrightarrow\{\}$ 3\
+\
+O $\\xrightarrow\{\}$ 4\
+\
+\\bigbreak\
+\
+$Q(P,P^m) = \{\\displaystyle\\sum_\{i=1\}^\{N\}\}$ $\{\\displaystyle \\sum_\{k \\in K\}$ \
+$Pr(Z_i = k | X_i; P^m) \\cdot Ln(Pr(X_i, Z_i =k))$\
+\
+\\bigbreak\
+\
+$\{\\displaystyle\\sum_\{i=1\}^\{N\}\}$ $\{\\mathbb\{1\}\\\{X_\{i\}=A\\\}\}ln(Pr(X_i=A,Z_i=AA)Pr(X_i=A,Z_i=AO)) + $\
+\
+$\{\\mathbb\{1\}\\\{X_\{i\}=B\\\}\}ln(Pr(X_i=B,Z_i=BB)Pr(X_i=B,Z_i=BO)) + $\
+\
+$\{\\mathbb\{1\}\\\{X_\{i\}=AB\\\}\}ln(Pr(X_i=AB,Z_i=AB) + $ $\{\\mathbb\{1\}\\\{X_\{i\}=O\\\}\}ln(Pr(X_i=O,Z_i=O)$\
+\
+\\bigbreak\
+\
+$\{\\displaystyle \\sum_\{i=1\}^\{n\}\}$ $\{\\mathbb\{1\}\\\{X_\{i\}=1\\\}\}$ $[\\frac\{P_A^m\}\{2P_A^m(1-P_A^m-P_B^m)\}ln(P_A^2)$\
+$ + (1-\\frac\{P_A^m\}\{2P_A^m(1-P_A^m-P_B^m)\})ln(2P_A(1-P_A-P_B))]$\
+\
+$\\xrightarrow\{\}$ $\{\\displaystyle \\sum_\{i=1\}^\{n\}\}$ $\{\\mathbb\{1\}\\\{X_\{i\}=1\\\}\}$ $\\frac\{1\}\{2(1-P_A^m-P_B^m)\}Ln(P_A^2)$ $ + (1-\\frac\{1\}\{2(1-P_A^m-P_B^m)\})ln(2P_A(1-P_A-P_B))]$\
+\
+\\bigbreak\
+\
+$\{\\displaystyle \\sum_\{i=1\}^\{n\}\}$ $\{\\mathbb\{1\}\\\{X_\{i\}=2\\\}\}$ $[\\frac\{P_B^m\}\{2P_B^m(1-P_A^m-P_B^m)\}ln(P_B^2)$\
+$ + (1-\\frac\{P_B^m\}\{2P_B^m(1-P_A^m-P_B^m)\})ln(2P_B(1-P_A-P_B))]$\
+\
+$\\xrightarrow\{\}$ $\{\\displaystyle \\sum_\{i=1\}^\{n\}\}$ $\{\\mathbb\{1\}\\\{X_\{i\}=2\\\}\}$ $\\frac\{1\}\{2(1-P_A^m-P_B^m)\}Ln(P_B^2)$ $ + (1-\\frac\{1\}\{2(1-P_A^m-P_B^m)\})ln(2P_B(1-P_A-P_B))]$\
+\
+\\bigbreak\
+\
+$\{\\displaystyle \\sum_\{i=1\}^\{n\}\}$ $\{\\mathbb\{1\}\\\{X_\{i\}=3\\\}\}$ $[Ln(2(P_AP_B))]$\
+\
+\\bigbreak\
+\
+$\{\\displaystyle \\sum_\{i=1\}^\{n\}\}$ $\{\\mathbb\{1\}\\\{X_\{i\}=4\\\}\}$ $[Ln(1-P_A-P_B)^2]$\
+\
+\
+\\end\{document\}\
+}
