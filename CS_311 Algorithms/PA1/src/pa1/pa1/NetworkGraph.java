@@ -48,12 +48,12 @@ public class NetworkGraph<E> implements Graph<String> {
 			outMap.put(vertNames.size()-1, new ArrayList<Integer>());
 			uniqueEdges.put(vertNames.size()-1, new HashSet<Integer>());
 			if (!levels.containsKey(parent)) {
-				System.out.println("Adding the root node: "+ url);
+//				System.out.println("Adding the root node: "+ url);
 				levels.put(url, 0);
 			} else {
 				int myLevel = levels.get(parent);
 				myLevel++;
-				System.out.println("\t"+myLevel+" Adding new node: "+ url+" "+vertNames.size());
+//				System.out.println("\t"+myLevel+" Adding new node: "+ url+" "+vertNames.size());
 				levels.put(url, myLevel);
 			}
 		}
